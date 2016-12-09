@@ -40,7 +40,6 @@ public class Player {
 		
 	}
 	
-
 	public void takeMana(int manaPoints) {
 		int desiredMana = getMana() + manaPoints;
 		setMana(desiredMana > getMaxMana() ? getMaxMana() : desiredMana); 
@@ -58,7 +57,7 @@ public class Player {
 		int damage = 0;
 		TypeOfAttack typeOfAttack = TypeOfAttack.valueOf(by.toUpperCase());
 		if (typeOfAttack.equals(TypeOfAttack.SPELL)){
-			damage = getSpell().getDamage();
+			damage = canCast(spell) ? getSpell().getDamage() : 0;
 		} else if (typeOfAttack.equals(TypeOfAttack.WEAPON)) {
 			damage = getWeapon().getDamage();
 		}
