@@ -36,5 +36,9 @@ public class Spell {
 		this.manaCost = manaCost;
 		this.castRange = castRange;
 	}
+	@Override
+	public String toString() {
+		return name + ": damage:" + damage + ", manaCost:" + manaCost + ", castRange:" + castRange;
+	}
 	
 }

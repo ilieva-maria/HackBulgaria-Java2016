@@ -5,7 +5,6 @@ public class Coordinates {
 	private int colPosition;
 	
 	public Coordinates(int rowPosition, int colPosition) {
-		super();
 		this.rowPosition = rowPosition;
 		this.colPosition = colPosition;
 	}

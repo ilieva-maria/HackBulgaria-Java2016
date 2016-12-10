@@ -7,8 +7,9 @@ import java.util.Random;
 public class Dungeon {
 	private char[][] map;
 	Hero hero;
-	private Coordinates heroPosition;
+	private Coordinates heroPosition = new Coordinates(0, 0);
 	private Map<Coordinates, Enemy> enemies = new HashMap<>();
+	private boolean reachedGateway = false;
 
 	private enum TypeOfMove {
 		UP, DOWN, LEFT, RIGHT
@@ -55,6 +56,9 @@ public class Dungeon {
 				}
 			}
 		}
+		if (!isInRange) {
+			System.out.println("Nothing in casting range " + hero.getSpell().getCastRange());
+		}
 		return isInRange;
 	}
 
@@ -87,26 +91,31 @@ public class Dungeon {
 		case 0:
 			Random randSpell = new Random();
 			int indexOfSpell = randSpell.nextInt(spells.length);
-			if (shouldPickSpell(spells[indexOfSpell])) {
+			Spell spellToPick = spells[indexOfSpell];
+			if (hero.getSpell() == null || shouldPickSpell(spellToPick)) {
 				hero.learnSpell(spells[indexOfSpell]);
+				System.out.println("Learned new spell. Hero spell is " + hero.getSpell().toString());
 			}
 			break;
 		case 1:
 			Random randWeapon = new Random();
 			int indexOfWeapon = randWeapon.nextInt(weapons.length);
-			if (shouldPickWeapon(weapons[indexOfWeapon])) {
+			if (hero.getWeapon() == null || shouldPickWeapon(weapons[indexOfWeapon])) {
 				hero.equip(weapons[indexOfWeapon]);
+				System.out.println("Found new weapon. Hero weapon is " + hero.getWeapon().toString());
 			}
 			break;
 		case 2:
 			Random randMana = new Random();
 			int manaPoints = randMana.nextInt(100);
 			hero.takeMana(manaPoints);
+			System.out.println("Found mana potion. Hero mana is " + hero.getMana());
 			break;
 		case 3:
 			Random randHealing = new Random();
 			int healingPoints = randHealing.nextInt(100);
 			hero.takeHealing(healingPoints);
+			System.out.println("Found health potion. Hero health is " + hero.getHealth());
 			break;
 		}
 	}
@@ -141,38 +150,52 @@ public class Dungeon {
 	}
 
 	public boolean inTheMap(int i, int j) {
-		return i < map.length && j < map[0].length;
+		return i >= 0 && i < map.length && j >= 0 && j < map[0].length;
+	}
+	
+	private void moveTo(int i, int j){
+		map[heroPosition.getRowPosition()][heroPosition.getColPosition()] = '.';
+		heroPosition.setRowPosition(i);
+		heroPosition.setColPosition(j);
+		map[i][j] = 'H';
 	}
 
-	public void makeMove(int i, int j) {
+	public boolean makeMove(int i, int j) {
 		if (!inTheMap(i, j)) {
-			return;
+			return false;
 		}
 		char targetCell = map[i][j];
 		if (targetCell == '#') {
 			System.out.println("Cannot complete the move. There is an obsticle in the way!");
-			return;
+			return false;
 		} else if (targetCell == 'E') {
 			hero.takeMana(hero.getManaRegenRate());
 			System.out.println("A figth has started!");
-
+			moveTo(i,j);
 			//Fight fight = new Fight(hero, enemy);
-			return;
+			return true;
 		} else if (targetCell == 'T') {
 			hero.takeMana(hero.getManaRegenRate());
 			System.out.println("Found treasure!");
-			heroPosition.setRowPosition(i);
-			heroPosition.setColPosition(j);
+			moveTo(i, j);
 			pickTreasure();
-			return;
+			return true;
 		} else if (targetCell == '.') {
 			hero.takeMana(hero.getManaRegenRate());
-			heroPosition.setRowPosition(i);
-			heroPosition.setColPosition(j);
-			return;
+			moveTo(i, j);
+			return true;
+		} else if (targetCell == 'G') {
+			System.out.println("The game is over!");
+			reachedGateway = true;
+			moveTo(i, j);
+			return true;
 		} else {
 			throw new RuntimeException("Incorrect move: " + i + " " + j);
 		}
+	}
+	
+	public boolean reachedGateway() {
+		return reachedGateway;
 	}
 
 	public void moveHero(String direction) {
