@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+ "-//Hibernate/Hibernate Mapping DTD//EN"
+ "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+	<class name="com.hackbulgaria.cinema_reservations.Projections" table="Projections">
+		<meta attribute="class-description">
+			This class contains the projection detail.
+		</meta>
+		<id name="id" type="int" column="id">
+			<generator class="native" />
+		</id>
+		<set name="reservations" table="Reservations"
+				inverse="true" lazy="true" fetch="select">
+			<key>
+				<column name="projection_id"></column>
+			</key>
+			<one-to-many class="com.hackbulgaria.cinema_reservations.Reservations"/>
+		</set>
+		<many-to-one name="movie" class="com.hackbulgaria.cinema_reservations.Movies" fetch="select">
+			<column name="movie_id" not-null="true"></column>
+		</many-to-one>
+		
+		<property name="type" column="type" type="string" />
+		<property name="date" column="date" type="date" />
+		<property name="time" column="time" type="time" />
+		
+	</class>
+</hibernate-mapping>
